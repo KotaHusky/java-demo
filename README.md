@@ -37,15 +37,21 @@ Add the actuator dependency to the project via the pom.xml file, which will allo
 
 ### Add Dockerfile
 
-Create a Dockerfile in the root of the project to build the application.
+Create a `Dockerfile` in the root of the project to build the application.
 
 ### Add Helm Chart
 
 Create a Helm chart in the root of the project to deploy the application.
+`helm create java-demo-chart`
 
 ### Add GitHub Actions
 
 Create a GitHub Actions workflow to build and deploy the application.
+
+### Setup AWS EKS Cluster
+
+Create an EKS cluster and associated resources using AWS CloudFormation.
+See file `aws/cloudformation/eks.yaml` for the CloudFormation template.
 
 ### Add GitHub Secrets
 
