@@ -8,6 +8,8 @@ Resources:
       Url: "https://token.actions.githubusercontent.com"
       ClientIdList:
         - "sts.amazonaws.com"
+      ThumbprintList:
+        - "6938fd4d98bab03faadb97b34396831e3780aea1"  # Root CA thumbprint for GitHub's OIDC provider
 
   GitHubOIDCRole:
     Type: "AWS::IAM::Role"
