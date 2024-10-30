@@ -47,12 +47,10 @@ jobs:
 
       # Step 7: Configure kubectl for AWS
       - name: Configure kubectl for AWS
-        if: github.event_name == 'push'
         run: echo "${{ secrets.KUBECONFIG_AWS }}" | base64 --decode > $HOME/.kube/config
 
       # Step 8: Deploy to AWS EKS with Helm
       - name: Deploy to AWS with Helm
-        if: github.event_name == 'push'
         run: |
           helm upgrade --install java-demo-release ./java-demo-chart -f java-demo-chart/values-aws.yaml
 
