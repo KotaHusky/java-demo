@@ -13,64 +13,73 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the repository
+      # Check out the repository
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Set up JDK
+      # Set up caching for Maven dependencies
+      - name: Cache Maven dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # Set up JDK
       - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
           java-version: '17'
           distribution: 'adopt'
 
-      # Step 3: Build, Test, and Package with Maven
+      # Build, Test, and Package with Maven
       - name: Build, Test, and Package with Maven
         run: mvn clean package
         env:
           CI: true
 
-      # Step 4: Log in to Docker Hub
+      # Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Step 5: Build Docker Image
+      # Build Docker Image
       - name: Build Docker Image
         run: docker build -t kotaderg/java-demo:latest .
 
-      # Step 6: Push Docker Image to Docker Hub
+      # Push Docker Image to Docker Hub
       - name: Push Docker Image to Docker Hub
         run: docker push kotaderg/java-demo:latest
 
-      # Step 7: Configure kubectl for AWS
+      # Configure kubectl for AWS
       - name: Configure kubectl for AWS
         run: echo "${{ secrets.KUBECONFIG_AWS }}" | base64 --decode > $HOME/.kube/config
 
-      # Step 8: Deploy to AWS EKS with Helm
+      # Deploy to AWS EKS with Helm
       - name: Deploy to AWS with Helm
         run: |
           helm upgrade --install java-demo-release ./java-demo-chart -f java-demo-chart/values-aws.yaml
 
-      # Step 9: Configure kubectl for GCP (Placeholder)
+      # Configure kubectl for GCP (Placeholder)
       - name: Configure kubectl for GCP
         if: github.event_name == 'push' && env.KUBECONFIG_GCP
         run: echo "${{ secrets.KUBECONFIG_GCP }}" | base64 --decode > $HOME/.kube/config
 
-      # Step 10: Deploy to GCP with Helm (Placeholder)
+      # Deploy to GCP with Helm (Placeholder)
       - name: Deploy to GCP with Helm
         if: github.event_name == 'push' && env.KUBECONFIG_GCP
         run: |
           helm upgrade --install java-demo-release ./java-demo-chart -f java-demo-chart/values-gcp.yaml
 
-      # Step 11: Configure kubectl for Azure (Placeholder)
+      # Configure kubectl for Azure (Placeholder)
       - name: Configure kubectl for Azure
         if: github.event_name == 'push' && env.KUBECONFIG_AZURE
         run: echo "${{ secrets.KUBECONFIG_AZURE }}" | base64 --decode > $HOME/.kube/config
 
-      # Step 12: Deploy to Azure with Helm (Placeholder)
+      # Deploy to Azure with Helm (Placeholder)
       - name: Deploy to Azure with Helm
         if: github.event_name == 'push' && env.KUBECONFIG_AZURE
         run: |
