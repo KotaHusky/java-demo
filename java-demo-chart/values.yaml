@@ -13,7 +13,7 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-# This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+# This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
 # This is to override the chart name.
 nameOverride: ""
@@ -51,10 +51,12 @@ securityContext: {}
 
 # This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
 service:
-  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
-  type: ClusterIP
-  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+  # This sets the service type to LoadBalancer to provision an AWS ELB more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  type: LoadBalancer
+  # This sets the public port for the LoadBalancer to expose. For more information, check: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
   port: 80
+  # This sets the internal target port of the application (e.g., the port the app is listening on within the container)
+  targetPort: 8080
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
