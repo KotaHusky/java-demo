@@ -26,7 +26,7 @@ Resources:
               StringEquals:
                 "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
                 # Restrict to specific GitHub repo, e.g., "repo:kotahusky/java-demo:*"
-                "token.actions.githubusercontent.com:sub": "repo:kotahusky/java-demo:*"
+                "token.actions.githubusercontent.com:sub": "repo:KotaHusky/java-demo:*"
 
       Policies:
         - PolicyName: "GitHubActionsPolicy"
