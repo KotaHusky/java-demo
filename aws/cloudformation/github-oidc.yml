@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create an IAM role for GitHub Actions OIDC with only necessary permissions.
+
+Resources:
+  GitHubOIDCProvider:
+    Type: "AWS::IAM::OIDCProvider"
+    Properties:
+      Url: "https://token.actions.githubusercontent.com"
+      ClientIdList:
+        - "sts.amazonaws.com"
+      ThumbprintList:
+        - "ffffffffffffffffffffffffffffffffffffffff"
+
+  GitHubOIDCRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: "GitHubOIDCRole"  # Customize as needed
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Federated: !Ref GitHubOIDCProvider
+            Action: "sts:AssumeRoleWithWebIdentity"
+            Condition:
+              StringEquals:
+                "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                # Restrict to specific GitHub repo, e.g., "repo:kotahusky/java-demo:*"
+                "token.actions.githubusercontent.com:sub": "repo:KotaHusky/java-demo:*"
+
+      Policies:
+        - PolicyName: "GitHubActionsPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # Allow read-only access to EKS clusters (only if EKS interaction is needed)
+              - Effect: "Allow"
+                Action:
+                  - "eks:DescribeCluster"
+                Resource: "*"
+
+Outputs:
+  GitHubOIDCRoleArn:
+    Description: "ARN of the IAM role for GitHub Actions OIDC"
+    Value: !GetAtt GitHubOIDCRole.Arn

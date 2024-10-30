@@ -1,0 +1,16 @@
+# Google Cloud Platform-specific settings
+
+service:
+  type: LoadBalancer   # GCP supports LoadBalancer for external access
+
+replicaCount: 1
+
+resources:
+  limits:
+    cpu: 100m       # 0.1 CPU core
+    memory: 128Mi   # Minimal memory for lightweight API
+  requests:
+    cpu: 50m        # 0.05 CPU core
+    memory: 64Mi
+
+# Storage and provider-specific configurations can be added here as needed
