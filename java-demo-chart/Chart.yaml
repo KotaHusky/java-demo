@@ -1,0 +1,5 @@
+apiVersion: v2
+name: java-demo-chart
+description: Helm chart for deploying the Java Spring Boot demo app
+version: 0.1.0
+appVersion: "1.0.0"

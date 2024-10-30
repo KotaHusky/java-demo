@@ -1,0 +1,16 @@
+# AWS-specific settings
+
+service:
+  type: LoadBalancer   # Expose the service externally on AWS
+
+# Set to 1 replica for minimal load
+replicaCount: 1
+
+# Minimal resources
+resources:
+  limits:
+    cpu: 100m       # 0.1 CPU core
+    memory: 128Mi   # 128 MiB of memory
+  requests:
+    cpu: 50m        # 0.05 CPU core (enough for lightweight API calls)
+    memory: 64Mi    # 64 MiB of memory
