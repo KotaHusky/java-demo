@@ -9,7 +9,7 @@ Resources:
       ClientIdList:
         - "sts.amazonaws.com"
       ThumbprintList:
-        - ffffffffffffffffffffffffffffffffffffffff"
+        - "ffffffffffffffffffffffffffffffffffffffff"
 
   GitHubOIDCRole:
     Type: "AWS::IAM::Role"
