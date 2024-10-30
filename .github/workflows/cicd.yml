@@ -56,7 +56,9 @@ jobs:
 
       # Configure kubectl for AWS
       - name: Configure kubectl for AWS
-        run: echo "${{ secrets.KUBECONFIG_AWS }}" | base64 --decode > $HOME/.kube/config
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG_AWS }}" | base64 --decode > $HOME/.kube/config
 
       # Deploy to AWS EKS with Helm
       - name: Deploy to AWS with Helm
