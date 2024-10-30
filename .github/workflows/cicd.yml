@@ -54,6 +54,13 @@ jobs:
       - name: Push Docker Image to Docker Hub
         run: docker push kotaderg/java-demo:latest
 
+      # Configure AWS credentials for EKS access
+      - name: Configure AWS credentials using OIDC
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-east-1
+
       # Configure kubectl for AWS
       - name: Configure kubectl for AWS
         run: |

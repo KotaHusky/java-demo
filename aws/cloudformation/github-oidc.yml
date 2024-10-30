@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create an IAM role for GitHub Actions OIDC
+
+Resources:
+  GitHubOIDCProvider:
+    Type: "AWS::IAM::OIDCProvider"
+    Properties:
+      Url: "https://token.actions.githubusercontent.com"
+      ClientIdList:
+        - "sts.amazonaws.com"
+      ThumbprintList:
+        - "6938fd4d98bab03faadb97b34396831e3780aea1"  # Root CA thumbprint for GitHub's OIDC provider
+
+  GitHubOIDCRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: "GitHubOIDCRole"  # Optionally customize this name
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Federated: !Ref GitHubOIDCProvider
+            Action: "sts:AssumeRoleWithWebIdentity"
+            Condition:
+              StringEquals:
+                "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                # Restrict to specific GitHub org/repo, e.g., "repo:my-org/my-repo:*"
+                "token.actions.githubusercontent.com:sub": "repo:kotahusky/java-demo:*"
+
+      Policies:
+        - PolicyName: "GitHubActionsPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # Define permissions needed by GitHub Actions here
+              - Effect: "Allow"
+                Action:
+                  - "eks:DescribeCluster"  # Example permission
+                  - "ecr:GetAuthorizationToken"
+                  - "ecr:BatchCheckLayerAvailability"
+                  - "ecr:GetDownloadUrlForLayer"
+                  - "ecr:BatchGetImage"
+                Resource: "*"
+
+Outputs:
+  GitHubOIDCRoleArn:
+    Description: "ARN of the IAM role for GitHub Actions OIDC"
+    Value: !GetAtt GitHubOIDCRole.Arn
