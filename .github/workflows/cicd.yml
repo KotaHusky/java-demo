@@ -26,9 +26,11 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-maven-v1-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
+            ${{ runner.os }}-maven-v1-
             ${{ runner.os }}-maven-
+      - run: ls ~/.m2/repository || echo "Cache not found, Maven dependencies will be downloaded."
 
       # Set up JDK
       - name: Set up JDK 17
