@@ -43,6 +43,34 @@ Create a Dockerfile in the root of the project to build the application.
 
 Create a Helm chart in the root of the project to deploy the application.
 
+### Add GitHub Actions
+
+Create a GitHub Actions workflow to build and deploy the application.
+
+### Add GitHub Secrets
+
+Add the following secrets to the GitHub repository:
+
+- DOCKER_USERNAME
+- DOCKER_PASSWORD
+- KUBECONFIG_AWS
+- KUBECONFIG_GCP
+- KUBECONFIG_AZURE
+
+KUBECONFIG_AWS, KUBECONFIG_GCP, and KUBECONFIG_AZURE are the kubeconfig files for the respective cloud providers. These files define the Kubernetes cluster, user, and context to use for the deployment.
+
+To retrieve the kubeconfig file for an EKS cluster, run the following command:
+
+```bash
+aws eks update-kubeconfig --name <cluster-name>
+```
+
+Encode the kubeconfig file using base64 and add it as a GitHub secret.
+
+```bash
+cat ~/.kube/config | base64
+```
+
 ## Local Test
 
 ### Run the application
