@@ -1,0 +1,130 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Minimal EKS Setup with Multi-AZ Subnets and IAM Roles for Java Demo Application
+
+Resources:
+  # EKS Cluster IAM Role
+  EKSClusterRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: eks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+        - arn:aws:iam::aws:policy/AmazonEKSVPCResourceController
+
+  # VPC
+  EKSVpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: eks-demo-vpc
+
+  # Internet Gateway
+  EKSInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: eks-demo-igw
+
+  # Attach Internet Gateway to VPC
+  EKSIGWAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref EKSVpc
+      InternetGatewayId: !Ref EKSInternetGateway
+
+  # Public Subnet in us-east-1a
+  EKSPublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref EKSVpc
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: us-east-1a
+      Tags:
+        - Key: Name
+          Value: eks-demo-public-subnet-1
+
+  # Public Subnet in us-east-1b
+  EKSPublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref EKSVpc
+      CidrBlock: 10.0.2.0/24
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: us-east-1b
+      Tags:
+        - Key: Name
+          Value: eks-demo-public-subnet-2
+
+  # Route Table for Public Subnets
+  EKSRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref EKSVpc
+      Tags:
+        - Key: Name
+          Value: eks-demo-route-table
+
+  # Route for Internet Access
+  EKSRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref EKSRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref EKSInternetGateway
+
+  # Associate Route Table with Public Subnets
+  EKSSubnetRouteTableAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref EKSPublicSubnet1
+      RouteTableId: !Ref EKSRouteTable
+
+  EKSSubnetRouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref EKSPublicSubnet2
+      RouteTableId: !Ref EKSRouteTable
+
+  # Security Group for EKS Cluster and Nodes
+  EKSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for EKS and worker nodes
+      VpcId: !Ref EKSVpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: eks-demo-sg
+
+  # EKS Cluster
+  EKSCluster:
+    Type: AWS::EKS::Cluster
+    Properties:
+      Name: eks-demo-cluster
+      RoleArn: !GetAtt EKSClusterRole.Arn
+      ResourcesVpcConfig:
+        SubnetIds:
+          - !Ref EKSPublicSubnet1
+          - !Ref EKSPublicSubnet2
+        SecurityGroupIds: [!Ref EKSSecurityGroup]
+      Version: "1.31"

@@ -1,0 +1,16 @@
+# Microsoft Azure-specific settings
+
+service:
+  type: LoadBalancer   # Use Azure LoadBalancer for external access
+
+replicaCount: 1
+
+resources:
+  limits:
+    cpu: 100m       # 0.1 CPU core
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+# Additional configurations can be added here if needed for Azure
